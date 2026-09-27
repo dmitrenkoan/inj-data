@@ -34,7 +34,7 @@ export default function Index({ brigades }) {
     };
 
     const destroy = (brigade) => {
-        if (confirm(`Видалити бригаду "${brigade.name}"?`)) {
+        if (confirm(`Видалити військову частину "${brigade.name}"?`)) {
             router.delete(route('brigades.destroy', brigade.id), { preserveScroll: true });
         }
     };
@@ -43,11 +43,11 @@ export default function Index({ brigades }) {
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Бригади
+                    Військові частини
                 </h2>
             }
         >
-            <Head title="Бригади" />
+            <Head title="Військові частини" />
 
             <div className="py-8">
                 <div className="mx-auto max-w-3xl sm:px-6 lg:px-8">
@@ -58,7 +58,7 @@ export default function Index({ brigades }) {
                         <div className="flex-1 min-w-[200px]">
                             <TextInput
                                 className="w-full"
-                                placeholder="Назва бригади"
+                                placeholder="Назва військової частини"
                                 value={createForm.data.name}
                                 onChange={(e) => createForm.setData('name', e.target.value)}
                             />
@@ -125,7 +125,7 @@ export default function Index({ brigades }) {
                                 {brigades.length === 0 && (
                                     <tr>
                                         <td colSpan={4} className="px-4 py-8 text-center text-sm text-gray-500">
-                                            Бригад ще немає.
+                                            Військових частин ще немає.
                                         </td>
                                     </tr>
                                 )}

@@ -32,7 +32,7 @@ class BrigadeController extends Controller
     {
         Brigade::create($request->validated());
 
-        return Redirect::route('brigades.index')->with('status', 'Бригаду додано.');
+        return Redirect::route('brigades.index')->with('status', 'Військову частину додано.');
     }
 
     /**
@@ -42,7 +42,7 @@ class BrigadeController extends Controller
     {
         $brigade->update($request->validated());
 
-        return Redirect::route('brigades.index')->with('status', 'Бригаду оновлено.');
+        return Redirect::route('brigades.index')->with('status', 'Військову частину оновлено.');
     }
 
     /**
@@ -53,11 +53,11 @@ class BrigadeController extends Controller
         Gate::authorize('delete', $brigade);
 
         if ($brigade->battalions()->exists()) {
-            return Redirect::route('brigades.index')->with('error', 'Неможливо видалити бригаду, у якій є батальйони.');
+            return Redirect::route('brigades.index')->with('error', 'Неможливо видалити військову частину, у якій є батальйони.');
         }
 
         $brigade->delete();
 
-        return Redirect::route('brigades.index')->with('status', 'Бригаду видалено.');
+        return Redirect::route('brigades.index')->with('status', 'Військову частину видалено.');
     }
 }

@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@example.com',
         ]);
 
-        $brigade = Brigade::factory()->create(['name' => '1 окрема бригада']);
+        $brigade = Brigade::factory()->create(['name' => '1 окрема військова частина']);
         $battalionOne = Battalion::factory()->create(['brigade_id' => $brigade->id, 'name' => '1 батальйон']);
         Battalion::factory()->create(['brigade_id' => $brigade->id, 'name' => '2 батальйон']);
 
@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
         Unit::factory()->create(['battalion_id' => $battalionOne->id, 'name' => '2 рота']);
 
         User::factory()->brigadeUser($brigade)->create([
-            'name' => 'Користувач бригади',
+            'name' => 'Користувач військової частини',
             'email' => 'brigade@example.com',
         ]);
 

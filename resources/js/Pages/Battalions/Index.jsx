@@ -67,7 +67,7 @@ export default function Index({ battalions, brigades }) {
                                     value={createForm.data.brigade_id}
                                     onChange={(e) => createForm.setData('brigade_id', e.target.value)}
                                 >
-                                    <option value="">— Бригада —</option>
+                                    <option value="">— Військова частина —</option>
                                     {brigades.map((b) => (
                                         <option key={b.id} value={b.id}>
                                             {b.name}
@@ -94,7 +94,7 @@ export default function Index({ battalions, brigades }) {
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Назва</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Бригада</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Військова частина</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Підрозділів</th>
                                     <th className="px-4 py-3" />
                                 </tr>

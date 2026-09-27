@@ -65,7 +65,7 @@ export default function Statistics({
                                 value={filters.brigade_id ?? ''}
                                 onChange={(e) => applyFilters({ brigade_id: e.target.value, battalion_id: '' })}
                             >
-                                <option value="">Усі бригади</option>
+                                <option value="">Усі військові частини</option>
                                 {brigades.map((b) => (
                                     <option key={b.id} value={b.id}>{b.name}</option>
                                 ))}

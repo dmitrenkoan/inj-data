@@ -20,7 +20,7 @@ export default function AuthenticatedLayout({ header, children }) {
         { name: 'data.index', label: 'Дані', show: true, activePattern: 'data.*' },
         { name: 'battalions.index', label: 'Батальйони', show: canManageBattalions },
         { name: 'units.index', label: 'Підрозділи', show: canManageUnits },
-        { name: 'brigades.index', label: 'Бригади', show: user.role === 'super_admin' },
+        { name: 'brigades.index', label: 'Військові частини', show: user.role === 'super_admin' },
         { name: 'users.index', label: 'Користувачі', show: canManageBattalions },
         { name: 'settlements.index', label: 'Населені пункти', show: user.role === 'super_admin' },
         { name: 'settings.edit', label: 'Налаштування', show: user.role === 'super_admin' },
@@ -207,6 +207,12 @@ export default function AuthenticatedLayout({ header, children }) {
             )}
 
             <main>{children}</main>
+
+            <footer className="py-6 text-center text-sm text-gray-400">
+                <a href="mailto:dmytrenko.gov.mil@gmail.com" className="hover:text-gray-600 hover:underline">
+                    &copy; {new Date().getFullYear()} Dmytrenko Anatoly
+                </a>
+            </footer>
         </div>
     );
 }

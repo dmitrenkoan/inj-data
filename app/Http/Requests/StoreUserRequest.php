@@ -54,12 +54,12 @@ class StoreUserRequest extends FormRequest
                 }
 
                 if ($brigadeId && $brigadeId != $currentUser->brigade_id) {
-                    $validator->errors()->add('brigade_id', 'Ви не маєте доступу до цієї бригади.');
+                    $validator->errors()->add('brigade_id', 'Ви не маєте доступу до цієї військової частини.');
                 }
             }
 
             if ($role === UserRole::Brigade && ! $brigadeId) {
-                $validator->errors()->add('brigade_id', 'Оберіть бригаду для цієї ролі.');
+                $validator->errors()->add('brigade_id', 'Оберіть військову частину для цієї ролі.');
             }
 
             if ($role === UserRole::Battalion) {

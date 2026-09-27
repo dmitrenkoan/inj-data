@@ -12,7 +12,7 @@ enum UserRole: string
     {
         return match ($this) {
             self::SuperAdmin => 'Супер адмін',
-            self::Brigade => 'Користувач бригади',
+            self::Brigade => 'Користувач військової частини',
             self::Battalion => 'Користувач батальйону',
         };
     }

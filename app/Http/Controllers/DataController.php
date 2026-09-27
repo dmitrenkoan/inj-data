@@ -262,7 +262,7 @@ class DataController extends Controller
                 $brigade = $group->first()->unit?->battalion?->brigade;
 
                 return [
-                    'brigade' => $brigade?->name ?? 'Без бригади',
+                    'brigade' => $brigade?->name ?? 'Без військової частини',
                     'total' => $group->count(),
                     'severe' => $group->filter(fn (Serviceman $s) => $s->severity === Severity::Severe)->count(),
                     'amputated' => $group->filter(fn (Serviceman $s) => $s->has_amputation)->count(),

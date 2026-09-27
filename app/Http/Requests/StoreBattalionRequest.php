@@ -40,7 +40,7 @@ class StoreBattalionRequest extends FormRequest
             $brigadeId = $this->input('brigade_id');
 
             if ($brigadeId && ! $user->isSuperAdmin() && $brigadeId != $user->brigade_id) {
-                $validator->errors()->add('brigade_id', 'Ви не маєте доступу до цієї бригади.');
+                $validator->errors()->add('brigade_id', 'Ви не маєте доступу до цієї військової частини.');
             }
         });
     }

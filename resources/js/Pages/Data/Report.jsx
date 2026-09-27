@@ -30,13 +30,13 @@ export default function Report({ rows, totals }) {
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <DataTabs active="report" />
 
-                    <h3 className="mb-2 text-sm font-semibold uppercase text-gray-700">Звіт по бригадам</h3>
+                    <h3 className="mb-2 text-sm font-semibold uppercase text-gray-700">Звіт по військових частинах</h3>
 
                     <div className="overflow-x-auto bg-white shadow sm:rounded-lg">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Бригада</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Військова частина</th>
                                     {COLUMNS.map((c) => (
                                         <th
                                             key={c.key}

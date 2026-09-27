@@ -65,13 +65,13 @@ export default function UserFormFields({ data, setData, errors, options, isEdit 
 
             {(data.role === 'brigade' || data.role === 'battalion') && (
                 <div>
-                    <InputLabel value="Бригада" />
+                    <InputLabel value="Військова частина" />
                     <SelectInput
                         className="mt-1 block w-full"
                         value={data.brigade_id ?? ''}
                         onChange={(e) => setData('brigade_id', e.target.value)}
                     >
-                        <option value="">— Оберіть бригаду —</option>
+                        <option value="">— Оберіть військову частину —</option>
                         {options.brigades.filter(Boolean).map((b) => (
                             <option key={b.id} value={b.id}>
                                 {b.name}

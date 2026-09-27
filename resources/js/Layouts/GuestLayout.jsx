@@ -13,6 +13,12 @@ export default function GuestLayout({ children }) {
             <div className="mt-6 w-full overflow-hidden bg-white px-6 py-4 shadow-md sm:max-w-md sm:rounded-lg">
                 {children}
             </div>
+
+            <footer className="py-6 text-center text-sm text-gray-400">
+                <a href="mailto:dmytrenko.gov.mil@gmail.com" className="hover:text-gray-600 hover:underline">
+                    &copy; {new Date().getFullYear()} Dmytrenko Anatoly
+                </a>
+            </footer>
         </div>
     );
 }

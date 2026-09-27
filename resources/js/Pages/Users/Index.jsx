@@ -35,7 +35,7 @@ export default function Index({ users, roles }) {
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Ім'я</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Email</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Роль</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Бригада</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Військова частина</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Батальйон</th>
                                     <th className="px-4 py-3" />
                                 </tr>
