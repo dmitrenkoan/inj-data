@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUnitRequest;
 use App\Http\Requests\UpdateUnitRequest;
 use App\Models\Battalion;
+use App\Models\Brigade;
 use App\Models\Unit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -23,8 +24,9 @@ class UnitController extends Controller
         $user = $request->user();
 
         return Inertia::render('Units/Index', [
-            'units' => Unit::query()->visibleTo($user)->with('battalion.brigade')->withCount('servicemen')->orderBy('name')->get(),
+            'units' => Unit::query()->visibleTo($user)->with(['battalion.brigade', 'brigade'])->withCount('servicemen')->orderBy('name')->get(),
             'battalions' => $user->isBattalion() ? [] : Battalion::query()->visibleTo($user)->with('brigade')->orderBy('name')->get(),
+            'brigades' => $user->isSuperAdmin() ? Brigade::query()->orderBy('name')->get() : [],
         ]);
     }
 
@@ -43,7 +45,11 @@ class UnitController extends Controller
      */
     public function update(UpdateUnitRequest $request, Unit $unit): RedirectResponse
     {
-        $unit->update($request->validated());
+        $data = $request->validated();
+        $data['battalion_id'] ??= null;
+        $data['brigade_id'] ??= null;
+
+        $unit->update($data);
 
         return Redirect::route('units.index')->with('status', 'Підрозділ оновлено.');
     }

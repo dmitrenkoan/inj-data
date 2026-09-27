@@ -90,7 +90,7 @@ class StoreServicemanRequest extends FormRequest
             $allowed = match (true) {
                 ! $unit => false,
                 $user->isSuperAdmin() => true,
-                $user->isBrigade() => $unit->battalion->brigade_id === $user->brigade_id,
+                $user->isBrigade() => ($unit->battalion?->brigade_id ?? $unit->brigade_id) === $user->brigade_id,
                 default => $unit->battalion_id === $user->battalion_id,
             };
 

@@ -44,9 +44,9 @@ class ServicemanController extends Controller
 
         $servicemen = Serviceman::query()
             ->visibleTo($user)
-            ->with(['unit.battalion.brigade', 'curator'])
+            ->with(['unit.battalion.brigade', 'unit.brigade', 'curator'])
             ->when($request->string('search')->trim()->isNotEmpty(), fn ($query) => $query->where('full_name', 'ilike', '%'.$request->string('search')->trim().'%'))
-            ->when($request->filled('brigade_id'), fn ($query) => $query->whereHas('unit.battalion', fn ($q) => $q->where('brigade_id', $request->integer('brigade_id'))))
+            ->when($request->filled('brigade_id'), fn ($query) => $query->whereHas('unit', fn ($q) => $q->forBrigade($request->integer('brigade_id'))))
             ->when($request->filled('unit_id'), fn ($query) => $query->where('unit_id', $request->integer('unit_id')))
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
             ->when($request->filled('severity'), fn ($query) => $query->where('severity', $request->string('severity')))
@@ -68,7 +68,7 @@ class ServicemanController extends Controller
             'servicemen' => $servicemen,
             'sort' => $sort,
             'direction' => $direction,
-            'units' => Unit::query()->visibleTo($user)->with('battalion.brigade')->orderBy('name')->get(),
+            'units' => Unit::query()->visibleTo($user)->with(['battalion.brigade', 'brigade'])->orderBy('name')->get(),
             'brigades' => $user->isSuperAdmin() ? Brigade::query()->orderBy('name')->get() : [],
             'curators' => User::query()->availableAsCuratorFor($user)->orderBy('name')->get(),
             'statuses' => $this->enumOptions(ServicemanStatus::cases()),
@@ -128,7 +128,7 @@ class ServicemanController extends Controller
     {
         Gate::authorize('view', $serviceman);
 
-        $serviceman->load(['unit.battalion.brigade', 'curator', 'facilitySettlement', 'treatmentFacilityHistory', 'paymentIssues', 'awards']);
+        $serviceman->load(['unit.battalion.brigade', 'unit.brigade', 'curator', 'facilitySettlement', 'treatmentFacilityHistory', 'paymentIssues', 'awards']);
 
         return Inertia::render('Servicemen/Show', [
             'serviceman' => $serviceman,
@@ -215,7 +215,7 @@ class ServicemanController extends Controller
         $user = $request->user();
 
         return [
-            'units' => Unit::query()->visibleTo($user)->with('battalion.brigade')->orderBy('name')->get(),
+            'units' => Unit::query()->visibleTo($user)->with(['battalion.brigade', 'brigade'])->orderBy('name')->get(),
             'curators' => User::query()->availableAsCuratorFor($user)->orderBy('name')->get(),
             'statuses' => $this->enumOptions(ServicemanStatus::cases()),
             'severities' => $this->enumOptions(Severity::cases()),

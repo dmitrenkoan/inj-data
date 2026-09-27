@@ -27,7 +27,7 @@ function Field({ label, error, children }) {
 }
 
 function unitLabel(unit) {
-    const brigade = unit.battalion?.brigade?.name;
+    const brigade = unit.battalion?.brigade?.name ?? unit.brigade?.name;
     const battalion = unit.battalion?.name;
 
     return [brigade, battalion, unit.name].filter(Boolean).join(' / ');

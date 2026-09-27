@@ -30,7 +30,7 @@ class DataController extends Controller
         $servicemen = Serviceman::query()
             ->visibleTo($user)
             ->whereNotNull('facility_settlement_id')
-            ->with(['unit.battalion.brigade', 'facilitySettlement'])
+            ->with(['unit.battalion.brigade', 'unit.brigade', 'facilitySettlement'])
             ->when($request->filled('unit_id'), fn (Builder $query) => $query->where('unit_id', $request->integer('unit_id')))
             ->when(
                 ! $request->filled('unit_id') && $request->filled('battalion_id'),
@@ -38,7 +38,7 @@ class DataController extends Controller
             )
             ->when(
                 ! $request->filled('unit_id') && ! $request->filled('battalion_id') && $request->filled('brigade_id'),
-                fn (Builder $query) => $query->whereHas('unit.battalion', fn (Builder $battalion) => $battalion->where('brigade_id', $request->integer('brigade_id'))),
+                fn (Builder $query) => $query->whereHas('unit', fn (Builder $unit) => $unit->forBrigade($request->integer('brigade_id'))),
             )
             ->get();
 
@@ -78,7 +78,7 @@ class DataController extends Controller
             'battalions' => $user->isSuperAdmin() || $user->isBrigade()
                 ? Battalion::query()->visibleTo($user)->with('brigade')->orderBy('name')->get()
                 : [],
-            'units' => Unit::query()->visibleTo($user)->with('battalion.brigade')->orderBy('name')->get(),
+            'units' => Unit::query()->visibleTo($user)->with(['battalion.brigade', 'brigade'])->orderBy('name')->get(),
         ]);
     }
 
@@ -97,7 +97,7 @@ class DataController extends Controller
             )
             ->when(
                 ! $request->filled('battalion_id') && $request->filled('brigade_id'),
-                fn (Builder $query) => $query->whereHas('unit.battalion', fn (Builder $battalion) => $battalion->where('brigade_id', $request->integer('brigade_id'))),
+                fn (Builder $query) => $query->whereHas('unit', fn (Builder $unit) => $unit->forBrigade($request->integer('brigade_id'))),
             );
 
         $total = (clone $base)->count();
@@ -251,15 +251,16 @@ class DataController extends Controller
 
         $servicemen = Serviceman::query()
             ->visibleTo($user)
-            ->with(['unit.battalion.brigade', 'paymentIssues', 'awards'])
+            ->with(['unit.battalion.brigade', 'unit.brigade', 'paymentIssues', 'awards'])
             ->get();
 
         $isSevereOrAmputated = fn (Serviceman $s) => $s->severity === Severity::Severe || $s->has_amputation;
+        $unitBrigade = fn (Serviceman $s) => $s->unit?->battalion?->brigade ?? $s->unit?->brigade;
 
         $rows = $servicemen
-            ->groupBy(fn (Serviceman $s) => $s->unit?->battalion?->brigade?->id ?? 'none')
-            ->map(function ($group) use ($isSevereOrAmputated) {
-                $brigade = $group->first()->unit?->battalion?->brigade;
+            ->groupBy(fn (Serviceman $s) => $unitBrigade($s)?->id ?? 'none')
+            ->map(function ($group) use ($isSevereOrAmputated, $unitBrigade) {
+                $brigade = $unitBrigade($group->first());
 
                 return [
                     'brigade' => $brigade?->name ?? 'Без військової частини',
@@ -312,7 +313,7 @@ class DataController extends Controller
     {
         $unit = $serviceman->unit;
         $battalion = $unit?->battalion;
-        $brigade = $battalion?->brigade;
+        $brigade = $battalion?->brigade ?? $unit?->brigade;
 
         return collect([$brigade?->name, $battalion?->name, $unit?->name])
             ->filter()

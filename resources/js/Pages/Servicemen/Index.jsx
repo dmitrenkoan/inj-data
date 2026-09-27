@@ -14,7 +14,7 @@ const STATUS_BADGE = {
 const ALERT_BADGE = 'inline-block rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800';
 
 function unitLabel(unit) {
-    const brigade = unit.battalion?.brigade?.name;
+    const brigade = unit.battalion?.brigade?.name ?? unit.brigade?.name;
     const battalion = unit.battalion?.name;
 
     return [brigade, battalion, unit.name].filter(Boolean).join(' / ');

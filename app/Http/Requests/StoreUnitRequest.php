@@ -26,7 +26,8 @@ class StoreUnitRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'battalion_id' => ['required', 'integer', Rule::exists('battalions', 'id')],
+            'battalion_id' => ['nullable', 'required_without:brigade_id', 'integer', Rule::exists('battalions', 'id')],
+            'brigade_id' => ['nullable', 'required_without:battalion_id', 'integer', Rule::exists('brigades', 'id')],
             'name' => ['required', 'string', 'max:255'],
         ];
     }
@@ -39,21 +40,36 @@ class StoreUnitRequest extends FormRequest
         $validator->after(function (Validator $validator) {
             $user = $this->user();
             $battalionId = $this->input('battalion_id');
+            $brigadeId = $this->input('brigade_id');
 
-            if (! $battalionId || $user->isSuperAdmin()) {
+            if ($battalionId && $brigadeId) {
+                $validator->errors()->add('brigade_id', 'Оберіть або батальйон, або військову частину, не обидва.');
+
                 return;
             }
 
-            $battalion = Battalion::find($battalionId);
+            if ($user->isSuperAdmin()) {
+                return;
+            }
 
-            $allowed = match (true) {
-                ! $battalion => false,
-                $user->isBrigade() => $battalion->brigade_id === $user->brigade_id,
-                default => $battalion->id === $user->battalion_id,
-            };
+            if ($battalionId) {
+                $battalion = Battalion::find($battalionId);
 
-            if (! $allowed) {
-                $validator->errors()->add('battalion_id', 'Ви не маєте доступу до цього батальйону.');
+                $allowed = match (true) {
+                    ! $battalion => false,
+                    $user->isBrigade() => $battalion->brigade_id === $user->brigade_id,
+                    default => $battalion->id === $user->battalion_id,
+                };
+
+                if (! $allowed) {
+                    $validator->errors()->add('battalion_id', 'Ви не маєте доступу до цього батальйону.');
+                }
+
+                return;
+            }
+
+            if ($brigadeId && (! $user->isBrigade() || (int) $brigadeId !== $user->brigade_id)) {
+                $validator->errors()->add('brigade_id', 'Ви не маєте доступу до цієї військової частини.');
             }
         });
     }

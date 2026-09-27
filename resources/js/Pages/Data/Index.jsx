@@ -37,7 +37,7 @@ function battalionLabel(battalion) {
 }
 
 function unitLabel(unit) {
-    const brigade = unit.battalion?.brigade?.name;
+    const brigade = unit.battalion?.brigade?.name ?? unit.brigade?.name;
     const battalion = unit.battalion?.name;
 
     return [brigade, battalion, unit.name].filter(Boolean).join(' / ');
@@ -99,7 +99,7 @@ export default function Index({ oblasts, totalCount, filters, brigades, battalio
             return String(u.battalion_id) === String(filters.battalion_id);
         }
         if (filters.brigade_id) {
-            return String(u.battalion?.brigade_id) === String(filters.brigade_id);
+            return String(u.battalion?.brigade_id ?? u.brigade_id) === String(filters.brigade_id);
         }
         return true;
     });

@@ -52,8 +52,8 @@ class BrigadeController extends Controller
     {
         Gate::authorize('delete', $brigade);
 
-        if ($brigade->battalions()->exists()) {
-            return Redirect::route('brigades.index')->with('error', 'Неможливо видалити військову частину, у якій є батальйони.');
+        if ($brigade->battalions()->exists() || $brigade->units()->exists()) {
+            return Redirect::route('brigades.index')->with('error', 'Неможливо видалити військову частину, у якій є батальйони або підрозділи.');
         }
 
         $brigade->delete();

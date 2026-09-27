@@ -11,32 +11,61 @@ function battalionLabel(battalion) {
     return battalion.brigade ? `${battalion.brigade.name} / ${battalion.name}` : battalion.name;
 }
 
-export default function Index({ units, battalions }) {
+function unitParentLabel(unit) {
+    if (unit.battalion) {
+        return battalionLabel(unit.battalion);
+    }
+
+    if (unit.brigade) {
+        return `${unit.brigade.name} (без батальйону)`;
+    }
+
+    return '—';
+}
+
+export default function Index({ units, battalions, brigades }) {
     const { auth } = usePage().props;
+    const isSuperAdmin = auth.user.role === 'super_admin';
+    const isBrigadeUser = auth.user.role === 'brigade';
     const [editingId, setEditingId] = useState(null);
 
     const createForm = useForm({
         name: '',
         battalion_id: auth.user.role === 'battalion' ? auth.user.battalion_id : '',
+        brigade_id: isBrigadeUser ? auth.user.brigade_id : '',
     });
 
-    const editForm = useForm({ name: '', battalion_id: '' });
+    const editForm = useForm({ name: '', battalion_id: '', brigade_id: '' });
+
+    const battalionsForBrigade = (brigadeId) => battalions.filter((b) => String(b.brigade_id) === String(brigadeId));
 
     const submitCreate = (e) => {
         e.preventDefault();
+        createForm.transform((data) => ({
+            ...data,
+            brigade_id: data.battalion_id ? '' : data.brigade_id,
+        }));
         createForm.post(route('units.store'), {
             preserveScroll: true,
-            onSuccess: () => createForm.reset('name'),
+            onSuccess: () => createForm.reset('name', 'battalion_id'),
         });
     };
 
     const startEdit = (unit) => {
         setEditingId(unit.id);
-        editForm.setData({ name: unit.name, battalion_id: unit.battalion_id });
+        editForm.setData({
+            name: unit.name,
+            battalion_id: unit.battalion_id ?? '',
+            brigade_id: unit.battalion?.brigade_id ?? unit.brigade_id ?? '',
+        });
     };
 
     const submitEdit = (e, unit) => {
         e.preventDefault();
+        editForm.transform((data) => ({
+            ...data,
+            brigade_id: data.battalion_id ? '' : data.brigade_id,
+        }));
         editForm.put(route('units.update', unit.id), {
             preserveScroll: true,
             onSuccess: () => setEditingId(null),
@@ -65,22 +94,44 @@ export default function Index({ units, battalions }) {
                         onSubmit={submitCreate}
                         className="mb-6 flex flex-wrap items-start gap-3 bg-white p-4 shadow sm:rounded-lg"
                     >
-                        {battalions.length > 0 && (
+                        {isSuperAdmin && (
+                            <div>
+                                <SelectInput
+                                    value={createForm.data.brigade_id}
+                                    onChange={(e) => createForm.setData({
+                                        ...createForm.data,
+                                        brigade_id: e.target.value,
+                                        battalion_id: '',
+                                    })}
+                                >
+                                    <option value="">— Військова частина —</option>
+                                    {brigades.map((b) => (
+                                        <option key={b.id} value={b.id}>
+                                            {b.name}
+                                        </option>
+                                    ))}
+                                </SelectInput>
+                                <InputError message={createForm.errors.brigade_id} className="mt-1" />
+                            </div>
+                        )}
+
+                        {(isSuperAdmin ? createForm.data.brigade_id : isBrigadeUser) ? (
                             <div>
                                 <SelectInput
                                     value={createForm.data.battalion_id}
                                     onChange={(e) => createForm.setData('battalion_id', e.target.value)}
                                 >
-                                    <option value="">— Батальйон —</option>
-                                    {battalions.map((b) => (
+                                    <option value="">— Без батальйону —</option>
+                                    {battalionsForBrigade(createForm.data.brigade_id).map((b) => (
                                         <option key={b.id} value={b.id}>
-                                            {battalionLabel(b)}
+                                            {b.name}
                                         </option>
                                     ))}
                                 </SelectInput>
                                 <InputError message={createForm.errors.battalion_id} className="mt-1" />
                             </div>
-                        )}
+                        ) : null}
+
                         <div className="flex-1 min-w-[200px]">
                             <TextInput
                                 className="w-full"
@@ -98,7 +149,7 @@ export default function Index({ units, battalions }) {
                             <thead className="bg-gray-50">
                                 <tr>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Назва</th>
-                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Батальйон</th>
+                                    <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Батальйон / Військова частина</th>
                                     <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">Поранених</th>
                                     <th className="px-4 py-3" />
                                 </tr>
@@ -112,18 +163,38 @@ export default function Index({ units, battalions }) {
                                                     onSubmit={(e) => submitEdit(e, unit)}
                                                     className="flex flex-wrap items-center gap-3"
                                                 >
-                                                    {battalions.length > 0 && (
+                                                    {isSuperAdmin && (
                                                         <SelectInput
-                                                            value={editForm.data.battalion_id}
-                                                            onChange={(e) => editForm.setData('battalion_id', e.target.value)}
+                                                            value={editForm.data.brigade_id}
+                                                            onChange={(e) => editForm.setData({
+                                                                ...editForm.data,
+                                                                brigade_id: e.target.value,
+                                                                battalion_id: '',
+                                                            })}
                                                         >
-                                                            {battalions.map((b) => (
+                                                            <option value="">— Військова частина —</option>
+                                                            {brigades.map((b) => (
                                                                 <option key={b.id} value={b.id}>
-                                                                    {battalionLabel(b)}
+                                                                    {b.name}
                                                                 </option>
                                                             ))}
                                                         </SelectInput>
                                                     )}
+
+                                                    {(isSuperAdmin ? editForm.data.brigade_id : isBrigadeUser) ? (
+                                                        <SelectInput
+                                                            value={editForm.data.battalion_id}
+                                                            onChange={(e) => editForm.setData('battalion_id', e.target.value)}
+                                                        >
+                                                            <option value="">— Без батальйону —</option>
+                                                            {battalionsForBrigade(editForm.data.brigade_id).map((b) => (
+                                                                <option key={b.id} value={b.id}>
+                                                                    {b.name}
+                                                                </option>
+                                                            ))}
+                                                        </SelectInput>
+                                                    ) : null}
+
                                                     <TextInput
                                                         value={editForm.data.name}
                                                         onChange={(e) => editForm.setData('name', e.target.value)}
@@ -139,7 +210,7 @@ export default function Index({ units, battalions }) {
                                         <tr key={unit.id} className="hover:bg-gray-50">
                                             <td className="px-4 py-3 text-sm font-medium text-gray-900">{unit.name}</td>
                                             <td className="px-4 py-3 text-sm text-gray-600">
-                                                {unit.battalion ? battalionLabel(unit.battalion) : '—'}
+                                                {unitParentLabel(unit)}
                                             </td>
                                             <td className="px-4 py-3 text-sm text-gray-600">{unit.servicemen_count}</td>
                                             <td className="px-4 py-3 text-right">

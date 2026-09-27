@@ -29,4 +29,15 @@ class Brigade extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    /**
+     * Units directly subordinate to this military unit (brigade), i.e. not
+     * attached through a battalion.
+     *
+     * @return HasMany<Unit, $this>
+     */
+    public function units(): HasMany
+    {
+        return $this->hasMany(Unit::class);
+    }
 }

@@ -254,8 +254,8 @@ class Serviceman extends Model
 
         if ($user->isBrigade()) {
             return $query->whereHas(
-                'unit.battalion',
-                fn (Builder $battalion) => $battalion->where('brigade_id', $user->brigade_id),
+                'unit',
+                fn (Builder $unit) => $unit->forBrigade($user->brigade_id),
             );
         }
 

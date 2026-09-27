@@ -54,7 +54,7 @@ class ServicemanPolicy
         }
 
         if ($user->isBrigade()) {
-            return $serviceman->unit->battalion->brigade_id === $user->brigade_id;
+            return ($serviceman->unit->battalion?->brigade_id ?? $serviceman->unit->brigade_id) === $user->brigade_id;
         }
 
         return $serviceman->unit->battalion_id === $user->battalion_id;
