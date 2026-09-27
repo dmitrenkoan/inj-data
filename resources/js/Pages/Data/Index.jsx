@@ -5,18 +5,29 @@ import { useEffect, useRef, useState } from 'react';
 import ukraineMapSvg from '../../data/ukraine-map.svg?raw';
 import DataTabs from './Partials/DataTabs';
 
-// Sequential single-hue ramp (blue, light -> dark), steps 100-700.
+// Sequential single-hue ramp (green, light -> dark), steps 100-700.
 const COLOR_STEPS = [
-    '#cde2fb', '#b7d3f6', '#9ec5f4', '#86b6ef', '#6da7ec', '#5598e7',
-    '#3987e5', '#2a78d6', '#256abf', '#1c5cab', '#184f95', '#104281', '#0d366b',
+    '#d3f0d1', '#c0e8bc', '#aadfa4', '#94d68c', '#7fcd74', '#6ac05f',
+    '#55b34a', '#439c3c', '#33862f', '#257023', '#1a5c19', '#124a11', '#0c3a0b',
 ];
 
-function colorForRatio(ratio) {
-    if (ratio <= 0) {
+// Fixed minimum count for each shade, independent of the current dataset's
+// max, so a single wounded serviceman always renders as the lightest shade
+// instead of "maxing out" the scale when it happens to be the only entry.
+const COUNT_THRESHOLDS = [1, 3, 5, 8, 12, 18, 27, 40, 60, 90, 135, 200, 300];
+
+function colorForCount(count) {
+    if (count <= 0) {
         return null;
     }
 
-    const idx = Math.min(COLOR_STEPS.length - 1, Math.max(0, Math.round(ratio * (COLOR_STEPS.length - 1))));
+    let idx = 0;
+
+    for (let i = 0; i < COUNT_THRESHOLDS.length; i++) {
+        if (count >= COUNT_THRESHOLDS[i]) {
+            idx = i;
+        }
+    }
 
     return COLOR_STEPS[idx];
 }
@@ -36,8 +47,6 @@ export default function Index({ oblasts, totalCount, filters, brigades, battalio
     const [view, setView] = useState({ level: 'oblasts' });
     const mapContainerRef = useRef(null);
 
-    const maxCount = Math.max(1, ...oblasts.map((o) => o.count));
-
     useEffect(() => {
         const svg = mapContainerRef.current?.querySelector('svg');
 
@@ -48,7 +57,7 @@ export default function Index({ oblasts, totalCount, filters, brigades, battalio
         svg.querySelectorAll('path.ukr-region').forEach((path) => {
             const name = path.getAttribute('data-name');
             const entry = oblasts.find((o) => o.oblast === name);
-            const color = entry ? colorForRatio(entry.count / maxCount) : null;
+            const color = entry ? colorForCount(entry.count) : null;
 
             if (color) {
                 path.style.setProperty('--c', color);
